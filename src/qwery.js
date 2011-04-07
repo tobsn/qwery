@@ -8,9 +8,10 @@
       classOnly = /^\.([\w\-]+)$/,
       tagOnly = /^([\w\-]+)$/,
       tagAndOrClass = /^([\w]+)?\.([\w\-]+)$/,
+      nthc = /^:nth-child\(([0-9n+]+|odd|even)\)$/,
       html = doc.documentElement,
       tokenizr = /\s(?![\s\w\-\/\?\&\=\:\.\(\)\!,@#%<>\{\}\$\*\^'"]*\])/,
-      simple = /^([a-z0-9]+)?(?:([\.\#]+[\w\-\.#]+)?)/,
+      simple = /^([a-z0-9]+)?(?:([\.\#]+[\w\-\.#]+)?(?:(:nth-[\w\-\+(\)]+))?)/,
       attr = /\[([\w\-]+)(?:([\|\^\$\*\~]?\=)['"]?([ \w\-\/\?\&\=\:\.\(\)\!,@#%<>\{\}\$\*\^]+)["']?)?\]/,
       chunker = new RegExp(simple.source + '(' + attr.source + ')?');
 
@@ -60,6 +61,12 @@
         }
       }
     }
+    if (wholeAttribute && (m = wholeAttribute.match(nthc)) && m[1] != ( el.index + 1 )) {
+      return false;
+    }
+    else {
+      wholeAttribute = null;
+    }
     if (wholeAttribute && !value) {
       o = this.attributes;
       for (k in o) {
@@ -83,6 +90,7 @@
     els = root.getElementsByTagName(tag);
     for (i = 0, l = els.length; i < l; i++) {
       el = els[i];
+      el.index = i;
       if (item = interpret.apply(el, intr)) {
         r.push(item);
       }
